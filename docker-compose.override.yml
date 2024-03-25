@@ -1,0 +1,16 @@
+version: "2.23"
+
+services:
+  db:
+    ports:
+      - 5432:5432
+    # volumes:
+    #   - ./data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: dracula
+    ports: 
+      - 3300:8080
