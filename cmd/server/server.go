@@ -63,6 +63,8 @@ func run(cfg config) error {
 
 	e.Static("/assets", "assets")
 	e.GET("/", userHandler.ShowUser)
+	e.GET("/signup", userHandler.Signup)
+	e.POST("/signup", userHandler.ProcessSignup)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }

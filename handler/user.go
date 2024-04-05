@@ -13,3 +13,16 @@ type UserHandler struct {
 func (h *UserHandler) ShowUser(c echo.Context) error {
 	return render(c, views.Show(), 200)
 }
+
+func (h *UserHandler) Signup(c echo.Context) error {
+	return render(c, views.Signup(), 200)
+}
+
+func (h *UserHandler) ProcessSignup(c echo.Context) error {
+	var data models.CreateUserDTO
+	if err := c.Bind(&data); err != nil {
+		return err
+	}
+	h.UserService.CreateUser(data)
+	return nil
+}

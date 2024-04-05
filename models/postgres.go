@@ -1,9 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
@@ -27,6 +27,7 @@ func (p PostgresConfig) String() string {
 		p.Host, p.Port, p.User, p.Password, p.Database, p.SSLMode)
 }
 
-func OpenDB(cfg PostgresConfig) (*sql.DB, error) {
-	return sql.Open("postgres", cfg.String())
+func OpenDB(cfg PostgresConfig) (*sqlx.DB, error) {
+	fmt.Println(cfg.String())
+	return sqlx.Open("postgres", cfg.String())
 }

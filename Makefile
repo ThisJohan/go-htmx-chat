@@ -6,3 +6,9 @@ tail:
 
 templ:
 	templ generate --watch
+
+migrate_up:
+	migrate -path migration/ -database "postgres://Johan:junglebook@localhost:5432/chat?sslmode=disable" -verbose up
+
+migrate_down:
+	migrate -path migration/ -database "postgres://Johan:junglebook@localhost:5432/chat?sslmode=disable" -verbose down
