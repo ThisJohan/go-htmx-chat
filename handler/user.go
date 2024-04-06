@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/ThisJohan/go-htmx-chat/models"
@@ -27,12 +26,21 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 	if err := c.Bind(&data); err != nil {
 		return err
 	}
-	_, err := h.UserService.CreateUser(data)
+	user, err := h.UserService.CreateUser(data)
 	if err != nil {
 		return err
 	}
-	// TODO
-	sessionToken, _ := h.SessionService.Create(context.Background(), "Test")
+	redisData := map[string]interface{}{
+		"id":         user.ID,
+		"email":      user.Email,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+	}
+
+	sessionToken, err := h.SessionService.Create(c.Request().Context(), redisData)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println(sessionToken)
 	return render(c, views.SignupForm(), 200)

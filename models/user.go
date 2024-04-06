@@ -42,7 +42,7 @@ func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
 	if rows.Next() {
 		rows.Scan(&user.ID)
 	}
-	return nil, nil
+	return &user, nil
 }
 
 func (*UserService) hashPassword(password string) (string, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/ThisJohan/go-htmx-chat/rand"
@@ -25,6 +26,7 @@ func (s *SessionService) Create(ctx context.Context, userData interface{}) (stri
 	}
 	sessionTokenHash := s.hash(sessionToken)
 
+	userData, _ = json.Marshal(userData)
 	err = s.Redis.Set(ctx, sessionTokenHash, userData, 0).Err()
 	if err != nil {
 		return "", err
