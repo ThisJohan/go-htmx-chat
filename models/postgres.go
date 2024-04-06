@@ -28,6 +28,5 @@ func (p PostgresConfig) String() string {
 }
 
 func OpenDB(cfg PostgresConfig) (*sqlx.DB, error) {
-	fmt.Println(cfg.String())
 	return sqlx.Open("postgres", cfg.String())
 }

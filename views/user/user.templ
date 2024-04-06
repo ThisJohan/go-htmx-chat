@@ -17,7 +17,7 @@ templ Signup() {
 				<h1 class="text-3xl font-bold">Sign Up</h1>
 				<p class="text-gray-500 dark:text-gray-400">Enter your information to create an account</p>
 			</div>
-			<form class="space-y-4" action="/signup" method="post">
+			<form class="space-y-4" hx-post="signup">
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-2">
 						<label

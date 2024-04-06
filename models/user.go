@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -27,6 +28,7 @@ type UserService struct {
 }
 
 func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
+	data.PasswordHash, _ = hashPassword(data.Password)
 	user := User{
 		Email:        data.Email,
 		FirstName:    data.FirstName,
@@ -40,6 +42,16 @@ func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
 	if rows.Next() {
 		rows.Scan(&user.ID)
 	}
-	fmt.Println(user)
 	return nil, nil
+}
+
+func hashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	return string(hash), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

@@ -24,5 +24,5 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 		return err
 	}
 	h.UserService.CreateUser(data)
-	return nil
+	return c.String(200, "OK")
 }
