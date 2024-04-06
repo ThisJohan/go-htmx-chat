@@ -1,3 +1,6 @@
+run:
+	go run cmd/server/server.go
+
 build:
 	go build -o main.exe cmd/server/server.go
 

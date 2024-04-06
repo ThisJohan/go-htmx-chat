@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,8 @@ import (
 	"github.com/ThisJohan/go-htmx-chat/models"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/redis/go-redis/v9"
 )
 
 type config struct {
@@ -39,13 +42,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	err = run(cfg)
+	err = run(context.Background(), cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(cfg config) error {
+func run(ctx context.Context, cfg config) error {
 	e := echo.New()
 	db, err := models.OpenDB(cfg.psql)
 	if err != nil {
@@ -53,13 +56,25 @@ func run(cfg config) error {
 	}
 	defer db.Close()
 
+	redis := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	err = redis.Ping(ctx).Err()
+	if err != nil {
+		return err
+	}
+
 	userService := &models.UserService{
 		DB: db,
 	}
+	sessionService := &models.SessionService{
+		Redis: redis,
+	}
 
 	userHandler := handler.UserHandler{
-		UserService: userService,
+		UserService:    userService,
+		SessionService: sessionService,
 	}
+
+	e.Use(middleware.Logger())
 
 	e.Static("/assets", "assets")
 	e.GET("/", userHandler.ShowUser)

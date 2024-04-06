@@ -28,7 +28,7 @@ type UserService struct {
 }
 
 func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
-	data.PasswordHash, _ = hashPassword(data.Password)
+	data.PasswordHash, _ = s.hashPassword(data.Password)
 	user := User{
 		Email:        data.Email,
 		FirstName:    data.FirstName,
@@ -45,13 +45,13 @@ func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
 	return nil, nil
 }
 
-func hashPassword(password string) (string, error) {
+func (*UserService) hashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	return string(hash), err
 }
 
-func checkPasswordHash(password, hash string) bool {
+func (*UserService) checkPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

@@ -1,13 +1,17 @@
 package handler
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/ThisJohan/go-htmx-chat/models"
 	views "github.com/ThisJohan/go-htmx-chat/views/user"
 	"github.com/labstack/echo/v4"
 )
 
 type UserHandler struct {
-	UserService *models.UserService
+	UserService    *models.UserService
+	SessionService *models.SessionService
 }
 
 func (h *UserHandler) ShowUser(c echo.Context) error {
@@ -23,6 +27,13 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 	if err := c.Bind(&data); err != nil {
 		return err
 	}
-	h.UserService.CreateUser(data)
-	return c.String(200, "OK")
+	_, err := h.UserService.CreateUser(data)
+	if err != nil {
+		return err
+	}
+	// TODO
+	sessionToken, _ := h.SessionService.Create(context.Background(), "Test")
+
+	fmt.Println(sessionToken)
+	return render(c, views.SignupForm(), 200)
 }

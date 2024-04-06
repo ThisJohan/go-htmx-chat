@@ -8,3 +8,7 @@ services:
       POSTGRES_USER: ${PSQL_USER}
       POSTGRES_PASSWORD: ${PSQL_PASSWORD}
       POSTGRES_DB: ${PSQL_DATABASE}
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
