@@ -80,6 +80,7 @@ func run(ctx context.Context, cfg config) error {
 	e.GET("/", userHandler.ShowUser)
 	e.GET("/signup", userHandler.Signup)
 	e.POST("/signup", userHandler.ProcessSignup)
+	e.GET("/user/me", userHandler.Me)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }

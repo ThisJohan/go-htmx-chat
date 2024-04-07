@@ -9,13 +9,6 @@ import (
 
 type User struct {
 	ID           int    `db:"id"`
-	Email        string `db:"email"`
-	FirstName    string `db:"first_name"`
-	LastName     string `db:"last_name"`
-	PasswordHash string `db:"password_hash"`
-}
-
-type CreateUserDTO struct {
 	Email        string `db:"email" form:"email"`
 	FirstName    string `db:"first_name" form:"first_name"`
 	LastName     string `db:"last_name" form:"last_name"`
@@ -27,7 +20,7 @@ type UserService struct {
 	DB *sqlx.DB
 }
 
-func (s *UserService) CreateUser(data CreateUserDTO) (*User, error) {
+func (s *UserService) CreateUser(data User) (*User, error) {
 	data.PasswordHash, _ = s.hashPassword(data.Password)
 	user := User{
 		Email:        data.Email,

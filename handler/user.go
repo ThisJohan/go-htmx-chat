@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/ThisJohan/go-htmx-chat/models"
 	views "github.com/ThisJohan/go-htmx-chat/views/user"
 	"github.com/labstack/echo/v4"
@@ -22,7 +20,7 @@ func (h *UserHandler) Signup(c echo.Context) error {
 }
 
 func (h *UserHandler) ProcessSignup(c echo.Context) error {
-	var data models.CreateUserDTO
+	var data models.User
 	if err := c.Bind(&data); err != nil {
 		return err
 	}
@@ -30,18 +28,28 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	redisData := map[string]interface{}{
-		"id":         user.ID,
-		"email":      user.Email,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
-	}
 
-	sessionToken, err := h.SessionService.Create(c.Request().Context(), redisData)
+	sessionToken, err := h.SessionService.Create(c.Request().Context(), models.UserCache{
+		ID: user.ID, Email: user.Email, FirstName: user.FirstName, LastName: user.LastName,
+	})
 	if err != nil {
 		return err
 	}
+	writeCookie(c, sessionTokenCookie, sessionToken)
 
-	fmt.Println(sessionToken)
 	return render(c, views.SignupForm(), 200)
+}
+
+func (h *UserHandler) Me(c echo.Context) error {
+	cookie, err := readCookie(c, sessionTokenCookie)
+	if err != nil {
+		return err
+	}
+	userCache, err := h.SessionService.Get(c.Request().Context(), cookie.Value)
+	if err != nil {
+		deleteCookie(c, sessionTokenCookie)
+		return err
+	}
+
+	return c.JSON(200, userCache)
 }
