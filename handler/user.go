@@ -40,16 +40,52 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 	return render(c, views.SignupForm(), 200)
 }
 
-func (h *UserHandler) Me(c echo.Context) error {
-	cookie, err := readCookie(c, sessionTokenCookie)
-	if err != nil {
-		return err
-	}
-	userCache, err := h.SessionService.Get(c.Request().Context(), cookie.Value)
-	if err != nil {
-		deleteCookie(c, sessionTokenCookie)
-		return err
-	}
+func (h *UserHandler) Login(c echo.Context) error {
+	return render(c, views.Login(), 200)
+}
 
-	return c.JSON(200, userCache)
+func (h *UserHandler) ProcessLogin(c echo.Context) error {
+	var data struct {
+		Email    string `form:"email"`
+		Password string `form:"password"`
+	}
+	if err := c.Bind(&data); err != nil {
+		return err
+	}
+	user, err := h.UserService.Authenticate(data.Email, data.Password)
+	if err != nil {
+		return err
+	}
+	sessionToken, err := h.SessionService.Create(c.Request().Context(), models.UserCache{
+		ID: user.ID, Email: user.Email, FirstName: user.FirstName, LastName: user.LastName,
+	})
+	if err != nil {
+		return err
+	}
+	writeCookie(c, sessionTokenCookie, sessionToken)
+	return render(c, views.LoginForm(), 200)
+}
+
+func (h *UserHandler) Me(c echo.Context) error {
+	user := c.Get("user")
+
+	return c.JSON(200, user)
+}
+
+func (h *UserHandler) AuthRequired(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		cookie, err := readCookie(c, sessionTokenCookie)
+		if err != nil {
+			c.Redirect(302, "/login")
+			return err
+		}
+		userCache, err := h.SessionService.Get(c.Request().Context(), cookie.Value)
+		if err != nil {
+			deleteCookie(c, sessionTokenCookie)
+			c.Redirect(302, "/login")
+			return err
+		}
+		c.Set("user", userCache)
+		return next(c)
+	}
 }

@@ -38,6 +38,19 @@ func (s *UserService) CreateUser(data User) (*User, error) {
 	return &user, nil
 }
 
+func (s *UserService) Authenticate(email, password string) (*User, error) {
+	var user User
+	err := s.DB.Get(&user, "SELECT * FROM users WHERE email = $1", email)
+	if err != nil {
+		return nil, err
+	}
+	ok := s.checkPasswordHash(password, user.PasswordHash)
+	if !ok {
+		return nil, fmt.Errorf("incorrect password")
+	}
+	return &user, nil
+}
+
 func (*UserService) hashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
