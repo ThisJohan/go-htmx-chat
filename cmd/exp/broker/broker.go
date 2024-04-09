@@ -6,55 +6,46 @@ import (
 	"time"
 )
 
-// Message represents a message that will be passed through the broker.
 type Message struct {
 	Topic   string
 	Payload interface{}
 }
 
-// Subscriber represents a subscriber to a topic.
 type Subscriber struct {
 	Channel     chan interface{}
 	Unsubscribe chan bool
 }
 
-// Broker is the in-memory message broker.
 type Broker struct {
 	subscribers map[string][]*Subscriber
 	mutex       sync.Mutex
 }
 
-// NewBroker creates a new instance of the in-memory broker.
 func NewBroker() *Broker {
 	return &Broker{
 		subscribers: make(map[string][]*Subscriber),
 	}
 }
 
-// Subscribe allows a client to subscribe to a topic and receive messages.
 func (b *Broker) Subscribe(topic string) *Subscriber {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
-
 	subscriber := &Subscriber{
 		Channel:     make(chan interface{}, 1),
 		Unsubscribe: make(chan bool),
 	}
-
 	b.subscribers[topic] = append(b.subscribers[topic], subscriber)
 
 	return subscriber
 }
 
-// Unsubscribe removes a subscriber from a topic.
 func (b *Broker) Unsubscribe(topic string, subscriber *Subscriber) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
-
 	if subscribers, found := b.subscribers[topic]; found {
 		for i, sub := range subscribers {
 			if sub == subscriber {
-				close(sub.Channel)
+				close(subscriber.Channel)
 				b.subscribers[topic] = append(subscribers[:i], subscribers[i+1:]...)
 				return
 			}
@@ -62,11 +53,9 @@ func (b *Broker) Unsubscribe(topic string, subscriber *Subscriber) {
 	}
 }
 
-// Publish sends a message to all subscribers of a specific topic.
 func (b *Broker) Publish(topic string, payload interface{}) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
-
 	if subscribers, found := b.subscribers[topic]; found {
 		for _, sub := range subscribers {
 			select {
@@ -100,6 +89,7 @@ func main() {
 	}()
 
 	broker.Publish("example_topic", "Hello, World!")
+	broker.Unsubscribe("example_topic", subscriber)
 	broker.Publish("example_topic", "This is a test message.")
 
 	time.Sleep(2 * time.Second)

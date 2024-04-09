@@ -75,6 +75,7 @@ func run(ctx context.Context, cfg config) error {
 	}
 
 	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	e.Static("/assets", "assets")
 	e.GET("/", userHandler.ShowUser)
