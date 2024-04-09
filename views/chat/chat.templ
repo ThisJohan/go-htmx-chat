@@ -1,0 +1,29 @@
+package chat
+
+templ Demo() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<title>WebSocket</title>
+		</head>
+		<body>
+			<p id="output"></p>
+			<script>
+    ws = new WebSocket('ws://localhost:5100/ws')
+
+    ws.onopen = function() {
+      console.log('Connected')
+    }
+
+    ws.onmessage = function(evt) {
+      console.log({evt})
+    }
+
+    setInterval(function() {
+      ws.send('Hello, Server!');
+    }, 2000);
+  </script>
+		</body>
+	</html>
+}

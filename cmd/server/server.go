@@ -73,6 +73,7 @@ func run(ctx context.Context, cfg config) error {
 		UserService:    userService,
 		SessionService: sessionService,
 	}
+	socketHandler := handler.SocketHandler{}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -87,6 +88,9 @@ func run(ctx context.Context, cfg config) error {
 	g := e.Group("/user")
 	g.Use(userHandler.AuthRequired)
 	g.GET("/me", userHandler.Me)
+
+	e.GET("/chat", socketHandler.Demo)
+	e.GET("/ws", socketHandler.Hello)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }
