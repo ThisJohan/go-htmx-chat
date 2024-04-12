@@ -10,7 +10,7 @@ templ Demo() {
 		<body>
 			<p id="output"></p>
 			<script>
-    ws = new WebSocket('ws://localhost:5100/ws')
+    ws = new WebSocket('ws://localhost:5100/user/ws')
 
     ws.onopen = function() {
       console.log('Connected')

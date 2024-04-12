@@ -68,15 +68,29 @@ func run(ctx context.Context, cfg config) error {
 	sessionService := &models.SessionService{
 		Redis: redis,
 	}
+	chatService := models.NewChatService(db, redis)
+	go chatService.Hub.Run()
 
 	userHandler := handler.UserHandler{
 		UserService:    userService,
 		SessionService: sessionService,
 	}
-	socketHandler := handler.SocketHandler{}
+	socketHandler := handler.SocketHandler{
+		ChatService: chatService,
+	}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	e.GET("/test", func(c echo.Context) error {
+		cl := chatService.Hub.Register(nil, 1000)
+		m := &models.Message{
+			ToUser:  1,
+			Content: "Tesst",
+		}
+		cl.ReadPump(m)
+		return c.String(200, "ok")
+	})
 
 	e.Static("/assets", "assets")
 	e.GET("/", userHandler.ShowUser)
@@ -90,7 +104,7 @@ func run(ctx context.Context, cfg config) error {
 	g.GET("/me", userHandler.Me)
 
 	e.GET("/chat", socketHandler.Demo)
-	e.GET("/ws", socketHandler.Hello)
+	g.GET("/ws", socketHandler.Chat)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }

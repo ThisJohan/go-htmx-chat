@@ -82,6 +82,13 @@ func (b *Broker) Publish(topic string, payload interface{}) {
 func main() {
 	broker := NewBroker()
 
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+			fmt.Println("Hello there")
+		}
+	}()
+
 	subscriber := broker.Subscribe("example_topic")
 	go func() {
 		for {

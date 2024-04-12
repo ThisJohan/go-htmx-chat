@@ -34,7 +34,7 @@ func (s *SessionService) Create(ctx context.Context, userData UserCache) (string
 	sessionTokenHash := s.hash(sessionToken)
 
 	jsonData, _ := json.Marshal(userData)
-	err = s.Redis.Set(ctx, sessionTokenHash, jsonData, time.Minute*5).Err()
+	err = s.Redis.Set(ctx, sessionTokenHash, jsonData, time.Hour*1).Err()
 	if err != nil {
 		return "", err
 	}
