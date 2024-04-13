@@ -99,11 +99,11 @@ func run(ctx context.Context, cfg config) error {
 	e.GET("/login", userHandler.Login)
 	e.POST("/login", userHandler.ProcessLogin)
 
-	g := e.Group("/user")
+	g := e.Group("/app")
 	g.Use(userHandler.AuthRequired)
 	g.GET("/me", userHandler.Me)
 
-	e.GET("/chat", socketHandler.Demo)
+	g.GET("/chat", socketHandler.Demo)
 	g.GET("/ws", socketHandler.Chat)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
