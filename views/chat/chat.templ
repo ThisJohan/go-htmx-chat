@@ -2,6 +2,7 @@ package chat
 
 import (
   "github.com/ThisJohan/go-htmx-chat/views/layout"
+  appCtx "github.com/ThisJohan/go-htmx-chat/context"
 )
 
 templ Demo() {
@@ -18,7 +19,7 @@ templ Demo() {
 					/>
 				</div>
 				<div class="flex-1">
-					<h1 class="text-lg font-semibold">WhatsApp</h1>
+					<h1 class="text-lg font-semibold">{appCtx.User(ctx).Email}</h1>
 					<p class="text-sm text-gray-500 dark:text-gray-400">Online</p>
 				</div>
 				<button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground">

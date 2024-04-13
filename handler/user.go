@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/ThisJohan/go-htmx-chat/context"
 	"github.com/ThisJohan/go-htmx-chat/models"
 	views "github.com/ThisJohan/go-htmx-chat/views/user"
 	"github.com/labstack/echo/v4"
@@ -67,25 +68,27 @@ func (h *UserHandler) ProcessLogin(c echo.Context) error {
 }
 
 func (h *UserHandler) Me(c echo.Context) error {
-	user := c.Get("user")
+	ac := c.(*context.AppContext)
+	user := ac.User()
 
 	return c.JSON(200, user)
 }
 
 func (h *UserHandler) AuthRequired(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := readCookie(c, sessionTokenCookie)
+		ac := c.(*context.AppContext)
+		cookie, err := readCookie(ac, sessionTokenCookie)
 		if err != nil {
-			c.Redirect(302, "/login")
+			ac.Redirect(302, "/login")
 			return err
 		}
-		userCache, err := h.SessionService.Get(c.Request().Context(), cookie.Value)
+		userCache, err := h.SessionService.Get(ac.Request().Context(), cookie.Value)
 		if err != nil {
-			deleteCookie(c, sessionTokenCookie)
-			c.Redirect(302, "/login")
+			deleteCookie(ac, sessionTokenCookie)
+			ac.Redirect(302, "/login")
 			return err
 		}
-		c.Set("user", userCache)
-		return next(c)
+		ac.WithUser(userCache)
+		return next(ac)
 	}
 }

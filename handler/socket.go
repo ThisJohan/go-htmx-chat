@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 
+	"github.com/ThisJohan/go-htmx-chat/context"
 	"github.com/ThisJohan/go-htmx-chat/models"
 	view "github.com/ThisJohan/go-htmx-chat/views/chat"
 	"github.com/gorilla/websocket"
@@ -40,13 +41,13 @@ func (h *SocketHandler) Hello(c echo.Context) error {
 
 		fmt.Println(string(message))
 	}
-	return nil
 }
 
 func (h *SocketHandler) Chat(c echo.Context) error {
-	user := c.Get("user").(*models.UserCache)
+	ac := c.(*context.AppContext)
+	user := ac.User()
 
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	ws, err := upgrader.Upgrade(ac.Response(), ac.Request(), nil)
 	if err != nil {
 		return err
 	}

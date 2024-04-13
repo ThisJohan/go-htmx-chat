@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	appCtx "github.com/ThisJohan/go-htmx-chat/context"
 	"github.com/ThisJohan/go-htmx-chat/handler"
 	"github.com/ThisJohan/go-htmx-chat/models"
 	"github.com/joho/godotenv"
@@ -79,6 +80,7 @@ func run(ctx context.Context, cfg config) error {
 		ChatService: chatService,
 	}
 
+	e.Use(appCtx.RegisterAppContext)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
