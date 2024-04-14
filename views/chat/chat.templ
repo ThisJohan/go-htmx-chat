@@ -7,7 +7,7 @@ import (
 
 templ Demo() {
 	@layout.Base() {
-		<div class="h-screen flex flex-col border-t border-gray-200 dark:border-gray-800">
+		<div class="h-screen flex flex-col border-t border-gray-200 dark:border-gray-800" hx-ext="ws" ws-connect="/app/ws">
 			<div class="flex items-center p-4 space-x-4 border-b border-gray-200 dark:border-gray-800">
 				<div class="rounded-full overflow-hidden">
 					<img
@@ -251,7 +251,5 @@ templ Demo() {
 				</div>
 			</div>
 		</div>
-
-		<script src="/assets/socket.js" type="module"></script>
 	}
 }

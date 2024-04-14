@@ -1,0 +1,3 @@
+add contact relation to user
+handle searching and choosing contact with htmx
+send a message to server and get specific messages for user you currently in chat with

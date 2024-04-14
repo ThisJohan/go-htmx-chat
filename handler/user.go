@@ -38,7 +38,8 @@ func (h *UserHandler) ProcessSignup(c echo.Context) error {
 	}
 	writeCookie(c, sessionTokenCookie, sessionToken)
 
-	return render(c, views.SignupForm(), 200)
+	c.Response().Header().Set("HX-Redirect", "/app/chat")
+	return c.String(200, "ok")
 }
 
 func (h *UserHandler) Login(c echo.Context) error {
@@ -64,7 +65,8 @@ func (h *UserHandler) ProcessLogin(c echo.Context) error {
 		return err
 	}
 	writeCookie(c, sessionTokenCookie, sessionToken)
-	return render(c, views.LoginForm(), 200)
+	c.Response().Header().Set("HX-Redirect", "/app/chat")
+	return c.String(200, "ok")
 }
 
 func (h *UserHandler) Me(c echo.Context) error {
