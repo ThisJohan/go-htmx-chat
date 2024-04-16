@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
@@ -23,7 +24,7 @@ type UserService struct {
 func (s *UserService) CreateUser(data User) (*User, error) {
 	data.PasswordHash, _ = s.hashPassword(data.Password)
 	user := User{
-		Email:        data.Email,
+		Email:        strings.ToLower(data.Email),
 		FirstName:    data.FirstName,
 		LastName:     data.LastName,
 		PasswordHash: data.PasswordHash,
