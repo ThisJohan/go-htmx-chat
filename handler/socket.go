@@ -15,11 +15,32 @@ var (
 )
 
 type SocketHandler struct {
-	ChatService *models.ChatService
+	ChatService    *models.ChatService
+	ContactService *models.ContactService
 }
 
 func (h *SocketHandler) Demo(c echo.Context) error {
-	return render(c, view.Demo(), 200)
+	ac := c.(*context.AppContext)
+	user := ac.User()
+	contacts, err := h.ContactService.GetContacts(user.ID)
+	if err != nil {
+		return err
+	}
+	return render(c, view.Demo(contacts), 200)
+}
+
+func (h *SocketHandler) SelectContact(c echo.Context) error {
+	ac := c.(*context.AppContext)
+	// user := ac.User()
+	// contactId := ac.Param("id")
+	contact := models.Contact{
+		ID:        1,
+		FirstName: "Johan",
+		LastName:  "Johansson",
+		Email:     "qzJQI@example.com",
+	}
+
+	return render(ac, view.Contact(contact, true), 200)
 }
 
 func (h *SocketHandler) Hello(c echo.Context) error {

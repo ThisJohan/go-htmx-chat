@@ -70,6 +70,9 @@ func run(ctx context.Context, cfg config) error {
 		Redis: redis,
 	}
 	chatService := models.NewChatService(db, redis)
+	contactService := &models.ContactService{
+		DB: db,
+	}
 	go chatService.Hub.Run()
 
 	userHandler := handler.UserHandler{
@@ -77,7 +80,11 @@ func run(ctx context.Context, cfg config) error {
 		SessionService: sessionService,
 	}
 	socketHandler := handler.SocketHandler{
-		ChatService: chatService,
+		ChatService:    chatService,
+		ContactService: contactService,
+	}
+	contactHandler := handler.ContactHandler{
+		ContactService: contactService,
 	}
 
 	e.Use(appCtx.RegisterAppContext)
@@ -107,6 +114,8 @@ func run(ctx context.Context, cfg config) error {
 
 	g.GET("/chat", socketHandler.Demo)
 	g.GET("/ws", socketHandler.Chat)
+	g.GET("/contacts", contactHandler.GetContacts)
+	g.GET("/contacts/:id", socketHandler.SelectContact)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }
