@@ -1,7 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/gorilla/websocket"
 	"github.com/jmoiron/sqlx"
@@ -32,8 +34,9 @@ type HubClient struct {
 	hub  *UsersHub
 	conn *websocket.Conn
 	// For sending messages from server to ws client
-	send   chan []byte
-	userId int
+	send            chan []byte
+	userId          int
+	activeContactId int
 }
 
 // Send new messages to client received from chan hub.deliver
@@ -51,16 +54,32 @@ func (client *HubClient) WritePump() {
 // Read incoming message from user and handle it to hub
 func (c *HubClient) ReadPump() {
 	for {
-		_, message, _ := c.conn.ReadMessage()
-		// if err != nil {
-		// 	if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-		// 		log.Printf("error: %v", err)
-		// 	}
-		// 	break
-		// }
-		// message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		fmt.Println(string(message))
+		_, message, err := c.conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break
+		}
+		if string(message) == "" {
+			continue
+		}
+		var data map[string]interface{}
+		err = json.Unmarshal(message, &data)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if data["type"] == "select_contact" {
+			// TODO: fix this with real data
+			// think about how to have userId and not contactId
+			c.activeContactId = 2
+		}
 	}
+}
+
+func (hub *UsersHub) Deliver(message *Message) {
+	hub.deliver <- message
 }
 
 func (hub *UsersHub) Register(conn *websocket.Conn, userId int) *HubClient {
@@ -88,7 +107,9 @@ func (hub *UsersHub) Run() {
 			if client, ok := hub.clients[message.ToUser]; ok {
 				// TODO: client must know message is sent from who ;)
 				// TODO: save message to redis and make update to database
-				client.send <- []byte(message.Content)
+				if client.activeContactId == 2 {
+					client.send <- []byte(message.Content)
+				}
 			}
 		}
 	}
@@ -105,4 +126,8 @@ func NewChatService(DB *sqlx.DB, Redis *redis.Client) *ChatService {
 		DB:    DB,
 		Redis: Redis,
 	}
+}
+
+func (s *ChatService) HandleNewMessage(message *Message) error {
+	return nil
 }

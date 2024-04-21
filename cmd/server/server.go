@@ -91,15 +91,15 @@ func run(ctx context.Context, cfg config) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// e.GET("/test", func(c echo.Context) error {
-	// 	cl := chatService.Hub.Register(nil, 1000)
-	// 	m := &models.Message{
-	// 		ToUser:  1,
-	// 		Content: "Tesst",
-	// 	}
-	// 	cl.ReadPump(m)
-	// 	return c.String(200, "ok")
-	// })
+	e.GET("/test", func(c echo.Context) error {
+		// cl := chatService.Hub.Register(nil, 1000)
+		m := &models.Message{
+			ToUser:  1,
+			Content: "Tesst",
+		}
+		chatService.Hub.Deliver(m)
+		return c.String(200, "ok")
+	})
 
 	e.Static("/assets", "assets")
 	e.GET("/", userHandler.ShowUser)
