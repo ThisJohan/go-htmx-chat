@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ThisJohan/go-htmx-chat/context"
 	"github.com/ThisJohan/go-htmx-chat/models"
@@ -31,16 +32,15 @@ func (h *SocketHandler) Demo(c echo.Context) error {
 
 func (h *SocketHandler) SelectContact(c echo.Context) error {
 	ac := c.(*context.AppContext)
-	// user := ac.User()
-	// contactId := ac.Param("id")
-	contact := models.Contact{
-		ID:        1,
-		FirstName: "Johan",
-		LastName:  "Johansson",
-		Email:     "qzJQI@example.com",
+	user := ac.User()
+	contactId, _ := strconv.Atoi(ac.Param("id"))
+	contact, err := h.ContactService.GetContactById(contactId, user.ID)
+	if err != nil {
+		return err
 	}
 
-	return render(ac, view.Contact(contact, true), 200)
+	render(ac, view.Chat(contact), 200)
+	return render(ac, view.Contact(contact, false), 200)
 }
 
 func (h *SocketHandler) Hello(c echo.Context) error {
@@ -76,7 +76,7 @@ func (h *SocketHandler) Chat(c echo.Context) error {
 
 	client := h.ChatService.Hub.Register(ws, user.ID)
 
-	// go client.ReadPump()
+	go client.ReadPump()
 	go client.WritePump()
 
 	return nil

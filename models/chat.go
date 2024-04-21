@@ -49,9 +49,18 @@ func (client *HubClient) WritePump() {
 }
 
 // Read incoming message from user and handle it to hub
-func (client *HubClient) ReadPump(m *Message) {
-	fmt.Println(client.hub.clients)
-	client.hub.deliver <- m
+func (c *HubClient) ReadPump() {
+	for {
+		_, message, _ := c.conn.ReadMessage()
+		// if err != nil {
+		// 	if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+		// 		log.Printf("error: %v", err)
+		// 	}
+		// 	break
+		// }
+		// message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		fmt.Println(string(message))
+	}
 }
 
 func (hub *UsersHub) Register(conn *websocket.Conn, userId int) *HubClient {

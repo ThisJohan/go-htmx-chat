@@ -29,7 +29,7 @@ func (s *UserService) CreateUser(data User) (*User, error) {
 		LastName:     data.LastName,
 		PasswordHash: data.PasswordHash,
 	}
-	rows, err := s.DB.NamedQuery("INSERT INTO users (email, first_name, last_name, password_hash) VALUES (:email, :first_name, :last_name, :password_hash) returning id;", data)
+	rows, err := s.DB.NamedQuery("INSERT INTO users (email, first_name, last_name, password_hash) VALUES (:email, :first_name, :last_name, :password_hash) returning id;", user)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}

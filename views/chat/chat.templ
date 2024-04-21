@@ -4,6 +4,7 @@ import (
 	"github.com/ThisJohan/go-htmx-chat/views/layout"
 	appCtx "github.com/ThisJohan/go-htmx-chat/context"
 	"github.com/ThisJohan/go-htmx-chat/models"
+	"strconv"
 )
 
 templ Demo(contacts []models.Contact) {
@@ -87,13 +88,12 @@ templ Demo(contacts []models.Contact) {
 					<div class="flex-1 overflow-y-auto">
 						<ul class="divide-y divide-gray-200 dark:divide-gray-800">
 							for _, contact := range contacts {
-								@Contact(contact, false)
+								@Contact(&contact, false)
 							}
 						</ul>
 					</div>
 				</div>
 				@ChatPlaceholder()
-				// @Chat()
 			</div>
 		</div>
 	}
@@ -105,8 +105,8 @@ templ ChatPlaceholder() {
 	</div>
 }
 
-templ Chat(contact models.Contact) {
-	<div class="flex-1 flex flex-col" id="chat-body">
+templ Chat(contact *models.Contact) {
+	<div class="flex-1 flex flex-col" id="chat-body" hx-swap-oob="true">
 		<div class="border-b border-gray-200 flex items-center p-4 space-x-4 dark:border-gray-800">
 			<div class="rounded-full overflow-hidden aspect-square">
 				<img
@@ -215,16 +215,17 @@ templ Chat(contact models.Contact) {
 	</div>
 }
 
-templ Contact(contact models.Contact, isSelected bool) {
-	// if selected class="bg-gray-100 dark:bg-gray-800"
+templ Contact(contact *models.Contact, isSelected bool) {
 	<li
 		if isSelected {
 			class="bg-gray-100 dark:bg-gray-800"
 		}
-		hx-GET="/app/contacts/1"
+		hx-GET={"/app/contacts/" + strconv.Itoa(contact.ID)}
 		hx-swap="outerHTML"
 	>
-		<a class="flex items-center gap-2 p-4 w-full aspect-none" href="#" rel="ugc">
+		<form class="flex items-center gap-2 p-4 w-full aspect-none cursor-pointer m-0" rel="ugc" ws-send hx-trigger="click">
+			<input name="contact_id" value={strconv.Itoa(contact.ID)} class="hidden" />
+			<input name="type" value="select_contact" class="hidden" />
 			<div class="rounded-full overflow-hidden aspect-square">
 				<img
 					src="/assets/images/user-placeholder.svg"
@@ -239,6 +240,6 @@ templ Contact(contact models.Contact, isSelected bool) {
 				<p class="text-sm truncate">{ contact.Email }</p>
 			</div>
 			<p class="text-xs text-gray-500 dark:text-gray-400">2:14 PM</p>
-		</a>
+		</form>
 	</li>
 }
