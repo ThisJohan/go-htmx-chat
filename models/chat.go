@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 	"github.com/jmoiron/sqlx"
@@ -11,9 +12,10 @@ import (
 )
 
 type ChatService struct {
-	Hub   *UsersHub
-	DB    *sqlx.DB
-	Redis *redis.Client
+	Hub            *UsersHub
+	DB             *sqlx.DB
+	Redis          *redis.Client
+	ContactService *ContactService
 }
 
 type Message struct {
@@ -28,6 +30,7 @@ type UsersHub struct {
 	register   chan *HubClient
 	unregister chan *HubClient
 	deliver    chan *Message
+	service    *ChatService
 }
 
 type HubClient struct {
@@ -73,7 +76,15 @@ func (c *HubClient) ReadPump() {
 		if data["type"] == "select_contact" {
 			// TODO: fix this with real data
 			// think about how to have userId and not contactId
-			c.activeContactId = 2
+			contactId, err := strconv.Atoi(data["contact_id"].(string))
+			if err != nil {
+				continue
+			}
+			userId, err := c.hub.service.ContactService.GetContactUserId(contactId)
+			if err != nil {
+				continue
+			}
+			c.activeContactId = userId
 		}
 	}
 }
@@ -107,7 +118,7 @@ func (hub *UsersHub) Run() {
 			if client, ok := hub.clients[message.ToUser]; ok {
 				// TODO: client must know message is sent from who ;)
 				// TODO: save message to redis and make update to database
-				if client.activeContactId == 2 {
+				if client.activeContactId != 0 && client.activeContactId == message.FromUser {
 					client.send <- []byte(message.Content)
 				}
 			}
@@ -116,7 +127,7 @@ func (hub *UsersHub) Run() {
 }
 
 func NewChatService(DB *sqlx.DB, Redis *redis.Client) *ChatService {
-	return &ChatService{
+	service := &ChatService{
 		Hub: &UsersHub{
 			clients:    make(map[int]*HubClient),
 			register:   make(chan *HubClient),
@@ -126,6 +137,10 @@ func NewChatService(DB *sqlx.DB, Redis *redis.Client) *ChatService {
 		DB:    DB,
 		Redis: Redis,
 	}
+	// TODO: I don't know if this is the best way to do it
+	// But I feel like I cracked to code to solve everything in universe :))
+	service.Hub.service = service
+	return service
 }
 
 func (s *ChatService) HandleNewMessage(message *Message) error {

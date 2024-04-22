@@ -1,6 +1,8 @@
 package models
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 type Contact struct {
 	ID        int    `db:"id"`
@@ -24,7 +26,7 @@ func (s *ContactService) GetContacts(userId int) ([]Contact, error) {
 	return contacts, err
 }
 
-func (s *ContactService) GetContactById(contactId, userId int) (*Contact, error) {
+func (s *ContactService) GetContactByIdAndValidate(contactId, userId int) (*Contact, error) {
 	var contact Contact
 	err := s.DB.Get(&contact, `
 		SELECT c.id, u.email, u.first_name, u.last_name
@@ -36,4 +38,19 @@ func (s *ContactService) GetContactById(contactId, userId int) (*Contact, error)
 		return nil, err
 	}
 	return &contact, nil
+}
+
+func (s *ContactService) GetContactUserId(contactId int) (int, error) {
+	var userId int
+	row := s.DB.QueryRow(`
+		SELECT u.id
+			FROM contacts c
+		INNER JOIN users u ON c.contact_id = u.id
+			WHERE c.id = $1;
+	`, contactId)
+	err := row.Scan(&userId)
+	if err != nil {
+		return 0, err
+	}
+	return userId, nil
 }

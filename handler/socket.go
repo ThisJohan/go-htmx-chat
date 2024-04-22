@@ -34,7 +34,7 @@ func (h *SocketHandler) SelectContact(c echo.Context) error {
 	ac := c.(*context.AppContext)
 	user := ac.User()
 	contactId, _ := strconv.Atoi(ac.Param("id"))
-	contact, err := h.ContactService.GetContactById(contactId, user.ID)
+	contact, err := h.ContactService.GetContactByIdAndValidate(contactId, user.ID)
 	if err != nil {
 		return err
 	}

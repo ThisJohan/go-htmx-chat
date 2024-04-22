@@ -73,6 +73,7 @@ func run(ctx context.Context, cfg config) error {
 	contactService := &models.ContactService{
 		DB: db,
 	}
+	chatService.ContactService = contactService
 	go chatService.Hub.Run()
 
 	userHandler := handler.UserHandler{
@@ -94,8 +95,9 @@ func run(ctx context.Context, cfg config) error {
 	e.GET("/test", func(c echo.Context) error {
 		// cl := chatService.Hub.Register(nil, 1000)
 		m := &models.Message{
-			ToUser:  1,
-			Content: "Tesst",
+			ToUser:   1,
+			Content:  "Tesst",
+			FromUser: 2,
 		}
 		chatService.Hub.Deliver(m)
 		return c.String(200, "ok")

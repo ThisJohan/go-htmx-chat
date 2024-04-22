@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: ${PSQL_PASSWORD}
       POSTGRES_DB: ${PSQL_DATABASE}
   redis:
+    restart: always
     image: "redis:latest"
     ports:
       - "6379:6379"
