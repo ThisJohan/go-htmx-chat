@@ -63,11 +63,12 @@ templ Demo(contacts []models.Contact) {
 			</div>
 			<div class="flex-1 flex">
 				<div class="border-r border-gray-200 w-[400px] min-h-0 flex flex-col">
-					<div class="relative">
+					<form class="relative" hx-POST="/app/contacts" hx-swap="none">
 						<input
 							class="flex h-10 border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full border-0 rounded-none"
 							id="search"
 							placeholder="Search or start new chat"
+							name="email"
 						/>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -84,9 +85,9 @@ templ Demo(contacts []models.Contact) {
 							<circle cx="11" cy="11" r="8"></circle>
 							<path d="m21 21-4.3-4.3"></path>
 						</svg>
-					</div>
+					</form>
 					<div class="flex-1 overflow-y-auto">
-						<ul class="divide-y divide-gray-200 dark:divide-gray-800">
+						<ul class="divide-y divide-gray-200 dark:divide-gray-800" id="contacts">
 							for _, contact := range contacts {
 								@Contact(&contact, false)
 							}
@@ -212,6 +213,12 @@ templ Chat(contact *models.Contact) {
 				></textarea>
 			</form>
 		</div>
+	</div>
+}
+
+templ OOBContact(contact *models.Contact) {
+	<div hx-swap-oob="beforeend" id="contacts">
+		@Contact(contact, false)
 	</div>
 }
 

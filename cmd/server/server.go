@@ -117,7 +117,8 @@ func run(ctx context.Context, cfg config) error {
 	g.GET("/chat", socketHandler.Demo)
 	g.GET("/ws", socketHandler.Chat)
 	g.GET("/contacts", contactHandler.GetContacts)
-	g.GET("/contacts/:id", socketHandler.SelectContact)
+	g.GET("/contacts/:id", contactHandler.SelectContact)
+	g.POST("/contacts", contactHandler.CreateContact)
 
 	return e.Start(fmt.Sprintf(":%s", cfg.port))
 }
