@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,6 +22,9 @@ func (s *ContactService) CreateContact(email string, userId int) (*Contact, erro
 	targetUser, err := s.GetUserByEmail(email)
 	if err != nil {
 		return nil, err
+	}
+	if userId == targetUser.ID {
+		return nil, fmt.Errorf("you can't add yourself as a contact")
 	}
 	row, err := s.DB.Query("INSERT INTO contacts (user_id, contact_id) VALUES ($1, $2) returning id;", userId, targetUser.ID)
 	if err != nil {
