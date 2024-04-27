@@ -74,8 +74,6 @@ func (c *HubClient) ReadPump() {
 			continue
 		}
 		if data["type"] == "select_contact" {
-			// TODO: fix this with real data
-			// think about how to have userId and not contactId
 			contactId, err := strconv.Atoi(data["contact_id"].(string))
 			if err != nil {
 				continue
@@ -85,6 +83,19 @@ func (c *HubClient) ReadPump() {
 				continue
 			}
 			c.activeContactId = userId
+		}
+		if data["type"] == "send_message" {
+			// userId, err := strconv.Atoi(data["to_user"].(string))
+			// if err != nil {
+			// 	continue
+			// }
+			content := data["content"].(string)
+			message := &Message{
+				ToUser:   c.activeContactId,
+				FromUser: c.userId,
+				Content:  content,
+			}
+			c.hub.Deliver(message)
 		}
 	}
 }

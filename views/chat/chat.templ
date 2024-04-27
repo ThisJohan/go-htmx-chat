@@ -200,7 +200,7 @@ templ Chat(contact *models.Contact) {
 			</div>
 		</div>
 		<div class="p-4">
-			<form class="flex gap-4">
+			<form class="flex gap-4" ws-send hx-swap="none">
 				<button
 					class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 ml-auto flex-0"
 					type="submit"
@@ -208,9 +208,11 @@ templ Chat(contact *models.Contact) {
 					Send
 				</button>
 				<textarea
+					name="content"
 					class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[60px] resize-none"
 					placeholder="Type a message"
 				></textarea>
+				<input class="hidden" name="type" value="send_message" />
 			</form>
 		</div>
 	</div>
